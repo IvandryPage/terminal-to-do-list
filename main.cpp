@@ -48,11 +48,31 @@ class TodoTask
 		}
 };
 
-std::vector<TodoTask> Tasks {};
+std::vector<TodoTask> tasks {};
 const char delimiter { '~' };
 
 void SaveToFile(std::string filename)
 {
+	std::ofstream output_stream(filename);
+	std::string write {};
+
+	for(const auto& task : tasks)
+	{
+		if(!task.getCompleted())
+		{
+			write.append(std::to_string(task.getDateTime().year));
+			write.append("~");
+			write.append(std::to_string(task.getDateTime().month));
+			write.append("~");
+			write.append(std::to_string(task.getDateTime().day));
+			write.append("~");
+			write.append(task.getTask());
+			write.append("~");
+			write.append(task.getDesc());
+			write.append("~");
+		}
+	}
+	output_stream << write;
 }
 
 void LoadFromFile(std::string filename)
@@ -63,8 +83,7 @@ void LoadFromFile(std::string filename)
 
 	while(std::getline(input_stream, token, delimiter))
 	{
-		if(!token.empty())
-			tokens.push_back(token);
+		tokens.push_back(token);
 	}
 
 	for(int i {0}; i < tokens.size() - 5; i += 5)
@@ -80,17 +99,13 @@ void LoadFromFile(std::string filename)
 			std::cerr << "Out of range error: " << e.what() << " - Token: [" << tokens[i] << "]\n";
 		}
 
-		Tasks.push_back(TodoTask(d, tokens[i+3], tokens[i+4]));
+		tasks.push_back(TodoTask(d, tokens[i+3], tokens[i+4]));
 	}
 }
 
 int main()
 {
+	SaveToFile("ToDo.txt");
 	LoadFromFile("ToDo.txt");
-	
-	for(const auto& task : Tasks)
-	{
-		task.show();
-	}
 	return 0;
 }
