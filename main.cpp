@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#define FILE "ToDo.txt"
 
 struct GenericDate
 {
@@ -46,6 +47,8 @@ class TodoTask
 
 			std::cout << "\n";
 		}
+
+		void setCompleted(bool status) { is_completed = status; }
 };
 
 std::vector<TodoTask> tasks {};
@@ -86,7 +89,7 @@ void LoadFromFile(std::string filename)
 		tokens.push_back(token);
 	}
 
-	for(int i {0}; i < tokens.size() - 5; i += 5)
+	for(int i {0}; i < tokens.size() - 4; i += 5)
 	{
 		GenericDate d;
 		try {
@@ -103,9 +106,91 @@ void LoadFromFile(std::string filename)
 	}
 }
 
+void ShowTask()
+{
+	for(const auto& task : tasks)
+	{
+		task.show();
+	}
+
+	std::cin.ignore(); std::cin.get();
+}
+
+void AddTask()
+{
+	GenericDate date;
+	std::cout << "Date: ";
+	std::cin >> date.day >> date.month >> date.year; std::cin.ignore();
+	
+	std::string task;
+	std::cout << "Task: ";
+	std::getline(std::cin, task);
+
+	std::string desc;
+	std::cout << "Desc: ";
+	std::getline(std::cin, desc);
+
+	tasks.push_back(TodoTask(date, task, desc));
+}
+
+void MarkAsDone()
+{
+	std::cout << "Task List\n";
+	for(int i {0}; i < std::size(tasks); i++)
+	{
+		std::cout << i + 1 << " - " << tasks[i].getTask() << '\n';
+	}
+
+	int input;
+	std::cout << "\n> Ketikkan pilihan Anda: ";
+    std::cin >> input;
+
+	if(input < std::size(tasks) && input >= 0)
+		tasks[input-1].setCompleted(true);
+}
+
+void Menu()
+{
+	#ifdef _WIN32
+		system("cls");
+	#else
+		system("clear");
+	#endif
+
+	std::cout << "MENU\n";
+	std::cout << "1. Add\n";
+	std::cout << "2. Show\n";
+	std::cout << "3. Mark as Done\n";
+
+	std::string input;
+	std::cout << "\n> Ketikkan pilihan Anda: ";
+    std::cin >> input;
+
+	switch(std::stoi(input))
+	{
+		case 1:
+			AddTask();
+			break;
+		case 2:
+			ShowTask();
+			break;
+		case 3:
+			MarkAsDone();
+			break;
+		case 4:
+			SaveToFile(FILE);
+			exit(0);
+			break;
+		default:
+			std::cout << "Invalid!\n";
+			std::cin.get();
+	}
+}
+
 int main()
 {
-	SaveToFile("ToDo.txt");
-	LoadFromFile("ToDo.txt");
+	LoadFromFile(FILE);
+	while(true)
+		Menu();
 	return 0;
 }
